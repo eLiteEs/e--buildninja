@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.6.3 - eLite (c) 2024
+    eBuildNinja 2024.6.4 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -15,19 +15,19 @@ using namespace std;
 typedef string String;
 
 // Define ASCII escape sequences for text modifications
-const std::string ASCII_BOLD = "\x1b[1m";        // Bold text
+std::string ASCII_BOLD = "\x1b[1m";        // Bold text
 const std::string ASCII_UNDERLINE = "\x1b[4m";   // Underlined text
 const std::string ASCII_REVERSE = "\x1b[7m";     // Reverse (swap foreground and background colors)
 
 // Define colors (optional)
-const std::string ASCII_BLACK = "\x1b[30m";
-const std::string ASCII_RED = "\x1b[31m";
-const std::string ASCII_GREEN = "\x1b[32m";
-const std::string ASCII_YELLOW = "\x1b[33m";
-const std::string ASCII_BLUE = "\x1b[34m";
-const std::string ASCII_MAGENTA = "\x1b[35m";
-const std::string ASCII_CYAN = "\x1b[36m";
-const std::string ASCII_WHITE = "\x1b[37m";
+std::string ASCII_BLACK;
+std::string ASCII_RED;
+std::string ASCII_GREEN;
+std::string ASCII_YELLOW;
+std::string ASCII_BLUE;
+std::string ASCII_MAGENTA;
+std::string ASCII_CYAN;
+std::string ASCII_WHITE;
 
 // Additional text modifications (optional)
 const std::string ASCII_DIM = "\x1b[2m";         // Dim text
@@ -43,7 +43,7 @@ const std::string ASCII_BG_BLUE = "\x1b[44m";
 const std::string ASCII_BG_MAGENTA = "\x1b[45m";
 const std::string ASCII_BG_CYAN = "\x1b[46m";
 const std::string ASCII_BG_WHITE = "\x1b[47m";
-const std::string ASCII_RESET = "\x1b[0m" + ASCII_WHITE;       // Reset text to default
+std::string ASCII_RESET;       // Reset text to default
 
 // Define bright color variables
 const std::string BRIGHT_RED = "\033[91m";
@@ -53,9 +53,21 @@ const std::string BRIGHT_BLUE = "\033[94m";
 const std::string BRIGHT_MAGENTA = "\033[95m";
 const std::string BRIGHT_CYAN = "\033[96m";
 const std::string BRIGHT_WHITE = "\033[97m";
-const std::string RESET_COLOR = "\033[0m";
+std::string RESET_COLOR = "\033[0m";
 
 enum LOG_TYPES {INFO = 0, ERROR = 1, WARNING = 2, MESSAGE = 3};
+
+void updateColors() {
+    ASCII_BLACK = "\x1b[30m";
+    ASCII_RED = "\x1b[31m";
+    ASCII_GREEN = "\x1b[32m";
+    ASCII_YELLOW = "\x1b[33m";
+    ASCII_BLUE = "\x1b[34m";
+    ASCII_MAGENTA = "\x1b[35m";
+    ASCII_CYAN = "\x1b[36m";
+    ASCII_WHITE = "\x1b[37m";
+    ASCII_RESET = "\x1b[0m" + ASCII_WHITE;
+}
 
 void log(LOG_TYPES type, String message) {
     if(type == INFO) {
@@ -125,7 +137,7 @@ int runCommandAndCaptureOutput(const std::string& com) {
 
     const int bufferSize = 128;
     char buffer[bufferSize];
-    std::string result = "";
+    std::string result = "" ;
     while (fgets(buffer, bufferSize, pipe) != nullptr) {
         result += buffer;
     }
@@ -172,7 +184,7 @@ int compile() {
             String args = line.substr(3, line.length() - 2 /* Remove last )\n */);
             String exeFilename = splitOutsideQuotes(args)[0];
             String srcFilename = splitOutsideQuotes(args)[1];
-            String argsC = "";
+            String argsC = "" ;
             if(countCharsOutsideQuotes(args, ',') == 2) {
                 argsC = splitOutsideQuotes(args)[2];
                 srcFilename = srcFilename.substr(0, srcFilename.length() - 1);
@@ -203,6 +215,14 @@ int compile() {
 }
 
 int main(int argc, char** argv) {
+    if(argc != 1) {
+        String a(argv[1]);
+        if(a != "--no-ascii") {
+            updateColors();
+        }
+    } else {
+        updateColors();
+    }
     log(INFO, "Starting eBuildNinja. . .");
     log(INFO, "Checking if C++ is installed. . .");
     if(runCommandAndCaptureOutput("gcc --version") != 0) {
@@ -211,7 +231,7 @@ int main(int argc, char** argv) {
     }
     if(argc != 1) {
         if(argv[1] == "--version") {
-            log(MESSAGE, "eBuildNinja 2024.6.3 - eLite (c) 2024");
+            log(MESSAGE, "eBuildNinja 2024.6.4 - eLite (c) 2024");
         } else {
             log(INFO, "Compiling current path.");
             return compile();
