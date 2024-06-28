@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.6.1 - eLite (c) 2024
+    eBuildNinja 2024.6.2 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -175,6 +175,7 @@ int compile() {
             String argsC = "";
             if(countCharsOutsideQuotes(args, ',') == 2) {
                 argsC = splitOutsideQuotes(args)[2];
+                srcFilename = srcFilename.substr(0, srcFilename.length() - 1);
             }
 
             log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + exeFilename);
@@ -210,7 +211,7 @@ int main(int argc, char** argv) {
     }
     if(argc != 1) {
         if(argv[1] == "--version") {
-            log(MESSAGE, "eBuildNinja 2024.6.1 - eLite (c) 2024");
+            log(MESSAGE, "eBuildNinja 2024.6.2º - eLite (c) 2024");
         } else {
             log(INFO, "Compiling current path.");
             return compile();
