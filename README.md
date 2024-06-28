@@ -14,12 +14,13 @@ Builder for C++
     - build.ninja.inf
 3. On build.ninja.inf file enter:
 ```
-ex("main.exe" "main.cpp")
+ex("main.exe" "main.cpp" "-static")
 ```
 Explanation:
 - ```ex``` : is a function for defining source files to compile.
 - ```"main.exe"``` : is the output .exe file for
 - ```"main.cpp"``` : the C++ source code.
+- ```"-static"``` : adds an argument to ```g++``` compiler.
 4. Now on the same directory where ```build.ninja.inf``` file is located, run ```buildn``` command.
 5. You can see, if all the code is right, that inside the ```target``` folder is the compiled ```main.cpp``` file.
 
