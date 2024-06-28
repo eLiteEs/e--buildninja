@@ -15,7 +15,7 @@ using namespace std;
 typedef string String;
 
 // Define ASCII escape sequences for text modifications
-std::string ASCII_BOLD = "\x1b[1m";        // Bold text
+std::string ASCII_BOLD;        // Bold text
 const std::string ASCII_UNDERLINE = "\x1b[4m";   // Underlined text
 const std::string ASCII_REVERSE = "\x1b[7m";     // Reverse (swap foreground and background colors)
 
@@ -67,6 +67,7 @@ void updateColors() {
     ASCII_CYAN = "\x1b[36m";
     ASCII_WHITE = "\x1b[37m";
     ASCII_RESET = "\x1b[0m" + ASCII_WHITE;
+    ASCII_BOLD = "\x1b[1m";
 }
 
 void log(LOG_TYPES type, String message) {
