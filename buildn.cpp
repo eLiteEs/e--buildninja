@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.6.2 - eLite (c) 2024
+    eBuildNinja 2024.6.3 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -181,7 +181,7 @@ int compile() {
             log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + exeFilename);
 
             // Start compiling
-            String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + exeFilename + "\" " + argsC.substr(0, argsC.length() - 1);
+            String command = "g++ \"src/" + srcFilename.erase(srcFilename.length() - 1) + "\" -o \"target/" + exeFilename + "\" " + argsC;
             int re = system(command.c_str());
 
             if(re != 0) {
@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
     }
     if(argc != 1) {
         if(argv[1] == "--version") {
-            log(MESSAGE, "eBuildNinja 2024.6.2º - eLite (c) 2024");
+            log(MESSAGE, "eBuildNinja 2024.6.3 - eLite (c) 2024");
         } else {
             log(INFO, "Compiling current path.");
             return compile();
