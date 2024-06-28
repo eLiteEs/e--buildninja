@@ -4,6 +4,7 @@ Builder for C++
 ### Requirements
 - 64-Bit Windows
 - ```g++``` command should be useable from console.
+- Good confidence about us because the ```.exe``` file isn't signed.
 ### Set up eBuildNinja and compile the project
 1. Download the file "buildn.exe" to your project folder.
 2. Set up the project tree like this:
