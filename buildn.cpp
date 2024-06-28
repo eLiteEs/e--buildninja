@@ -1,5 +1,6 @@
 /*
-    eBuildNinja 2024.6 - eLite (c) 2024
+    eBuildNinja 2024.6.1 - eLite (c) 2024
+    Plz don't copy this code
 */
 #include <iostream>
 #include <fstream>
@@ -185,7 +186,7 @@ int compile() {
             if(re != 0) {
                 log(ERROR, "File src/" + srcFilename + " gave an error.");
             } else {
-                log(INFO, "File src/" + srcFilename + "was compiled succesfully.");
+                log(INFO, "File src/" + srcFilename + " was compiled succesfully.");
             }
         }
     }
@@ -209,7 +210,7 @@ int main(int argc, char** argv) {
     }
     if(argc != 1) {
         if(argv[1] == "--version") {
-            log(MESSAGE, "eBuildNinja 2024.6 - eLite (c) 2024");
+            log(MESSAGE, "eBuildNinja 2024.6.1 - eLite (c) 2024");
         } else {
             log(INFO, "Compiling current path.");
             return compile();
