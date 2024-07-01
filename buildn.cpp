@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.6.4 - eLite (c) 2024
+    eBuildNinja 2024.7.1 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -55,7 +55,7 @@ const std::string BRIGHT_CYAN = "\033[96m";
 const std::string BRIGHT_WHITE = "\033[97m";
 std::string RESET_COLOR = "\033[0m";
 
-enum LOG_TYPES {INFO = 0, ERROR = 1, WARNING = 2, MESSAGE = 3};
+enum LOG_TYPES {INFO = 0, ERROR = 1, WARNING = 2, MESSAGE = 3, SUCCESS = 4};
 
 void updateColors() {
     ASCII_BLACK = "\x1b[30m";
@@ -79,6 +79,8 @@ void log(LOG_TYPES type, String message) {
         cout << ASCII_BOLD << ASCII_YELLOW << "[WARNING]" << ASCII_RESET << " " << message << "\n";
     } else if(type == MESSAGE) {
         cout << ASCII_BOLD << ASCII_WHITE << "" << ASCII_RESET << "" << message << "\n";
+    } else if(type == SUCCESS) {
+        cout << ASCII_BOLD << ASCII_GREEN << "[SUCCESS]" << ASCII_RESET << " " << message << "\n";
     }
 }
 
@@ -176,13 +178,13 @@ int compile() {
     log(INFO, "Reading build.ninja.inf file. . .");
     fstream f("build.ninja.inf");
     String line;
-    vector<String> filesToCompile;
+    String projectName, projectVersion;
     while(getline(f, line)) {
         if(line.substr(0,1) == "#") {
             // Comment, ignore
         } else if(line.substr(0,3) == "ex(") {
             // Definition of an executable file.
-            String args = line.substr(3, line.length() - 2 /* Remove last )\n */);
+            String args = line.substr(3, line.length() - 2 /* Remove last ) */);
             String exeFilename = splitOutsideQuotes(args)[0];
             String srcFilename = splitOutsideQuotes(args)[1];
             String argsC = "" ;
@@ -202,6 +204,16 @@ int compile() {
             } else {
                 log(INFO, "File src/" + srcFilename + " was compiled succesfully.");
             }
+        } else if(line.substr(0,2) == "v.") {
+            // Definition of a variable
+            String variableName = line.substr(2, line.substr(2).find_first_of('('));
+            if(variableName == "projectName") {
+                projectName = line.substr(line.substr(2).find_first_of('(') + 3, line.substr(line.substr(2).find_first_of('(') + 3).find_last_of(')'));
+            } else if(variableName == "projectVersion") {
+                projectVersion = line.substr(line.substr(2).find_first_of('(') + 3, line.substr(line.substr(2).find_first_of('(') + 3).find_last_of(')'));
+            } else {
+                log(WARNING, "Variable type \"" + variableName + "\" is not on variable list, ignoring.");
+            }
         }
     }
 
@@ -211,7 +223,23 @@ int compile() {
     // Calculate duration
     std::chrono::duration<double> duration = end - start;
 
-    log(INFO, "Build completed in " + durationToString(duration) + "");
+    if(!projectName.empty() && !projectVersion.empty()) {
+        log(SUCCESS, "------------------------------------------------------------------------");
+        log(SUCCESS, "Project " + projectName + ":" + projectVersion + " build completed in " + durationToString(duration) + "");
+        log(SUCCESS, "------------------------------------------------------------------------");
+    } else if(projectName.empty() && !projectVersion.empty()) {
+        log(SUCCESS, "------------------------------------------------------------------------");
+        log(SUCCESS, "Project version " + projectVersion + " build completed in " + durationToString(duration) + "");
+        log(SUCCESS, "------------------------------------------------------------------------");
+    } else if(!projectName.empty() && projectVersion.empty()) {
+        log(SUCCESS, "------------------------------------------------------------------------");
+        log(SUCCESS, "Project  " + projectName + " build completed in " + durationToString(duration) + "");
+        log(SUCCESS, "------------------------------------------------------------------------");
+    } else if(projectName.empty() && projectVersion.empty()) {
+        log(SUCCESS, "------------------------------------------------------------------------");
+        log(SUCCESS, "Build completed in " + durationToString(duration) + "");
+        log(SUCCESS, "------------------------------------------------------------------------");
+    }
     return 0;
 }
 
@@ -224,21 +252,20 @@ int main(int argc, char** argv) {
     } else {
         updateColors();
     }
+    if(argc != 1) {
+        String ver(argv[1]);
+        if(ver == "--version") {
+            log(MESSAGE, "eBuildNinja 2024.7.1 - eLite (c) 2024");
+            return 0;
+        }
+    }
     log(INFO, "Starting eBuildNinja. . .");
     log(INFO, "Checking if C++ is installed. . .");
     if(runCommandAndCaptureOutput("gcc --version") != 0) {
         log(ERROR, "C++ should be installed and be added to PATH enviroment variables.");
         return -1;
     }
-    if(argc != 1) {
-        if(argv[1] == "--version") {
-            log(MESSAGE, "eBuildNinja 2024.6.4 - eLite (c) 2024");
-        } else {
-            log(INFO, "Compiling current path.");
-            return compile();
-        }
-    } else {
-        log(INFO, "As no argument was found, running as default current path.");
-        return compile();
-    }
+    log(INFO, "As no argument was found, running as default current path.");
+ 
+    return compile();
 }
