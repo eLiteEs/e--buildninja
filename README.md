@@ -8,11 +8,11 @@ Builder for C++
 ### Set up eBuildNinja and compile the project
 1. Download the file "buildn.exe" to your project folder.
 2. Set up the project tree like this:
-    project :
-    - src:
-      - main.cpp
-    - target:
-    - build.ninja.inf
+    -project:
+        - src:
+          - main.cpp
+        - target:
+        - build.ninja.inf
 3. On build.ninja.inf file enter:
 ```
 ex("main.exe" "main.cpp" "-static")
@@ -26,4 +26,4 @@ Explanation:
 5. You can see, if all the code is right, that inside the ```target``` folder is the compiled ```main.cpp``` file.
 
 ## Where is eBuildNinja used?
-eBuildNinja is used on the IDE AliCode, for compiling C^8 and LaQTeOS and if you want, you can implement it on your C++ project.
+eBuildNinja is used on the IDE AliCode, for compiling C++ and C^8 and if you want, you can implement it on your C++ project.
