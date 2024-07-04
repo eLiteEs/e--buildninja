@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.7.1 - eLite (c) 2024
+    eBuildNinja 2024.7.2 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -8,6 +8,8 @@
 #include <filesystem>
 #include <chrono>
 #include <vector>
+#include <iomanip>
+#include <sstream>
 
 auto start = std::chrono::high_resolution_clock::now();
 
@@ -69,18 +71,37 @@ void updateColors() {
     ASCII_RESET = "\x1b[0m" + ASCII_WHITE;
     ASCII_BOLD = "\x1b[1m";
 }
+std::string getCurrentDateTime() {
+    // Get current time
+    auto now = std::chrono::system_clock::now();
 
+    // Convert to time_t for extracting calendar time
+    std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+    
+    // Convert to milliseconds
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+
+    // Convert to tm struct for formatting
+    std::tm now_tm = *std::localtime(&now_time_t);
+
+    // Use stringstream to format the date and time
+    std::stringstream ss;
+    ss << std::put_time(&now_tm, "%d/%m/%Y %H:%M:%S");
+    ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+
+    return ss.str();
+}
 void log(LOG_TYPES type, String message) {
     if(type == INFO) {
-        cout << ASCII_BOLD << ASCII_BLUE << "[INFO]" << ASCII_RESET << " " << message << "\n";
+        cout << ASCII_BOLD << ASCII_BLUE << "[INFO]" << ASCII_RESET << " " << /*(" << getCurrentDateTime() << ") " <<*/ message << "\n";
     } else if(type == ERROR) {
-        cout << ASCII_BOLD << ASCII_RED << "[ERROR]" << ASCII_RESET << " " << message << "\n";
+        cout << ASCII_BOLD << ASCII_RED << "[ERROR]" << ASCII_RESET << " " << /*(" << getCurrentDateTime() << ") " <<*/ message << "\n";
     } else if(type == WARNING) {
-        cout << ASCII_BOLD << ASCII_YELLOW << "[WARNING]" << ASCII_RESET << " " << message << "\n";
+        cout << ASCII_BOLD << ASCII_YELLOW << "[WARNING]" << ASCII_RESET << " " << /*(" << getCurrentDateTime() << ") " <<*/ message << "\n";
     } else if(type == MESSAGE) {
         cout << ASCII_BOLD << ASCII_WHITE << "" << ASCII_RESET << "" << message << "\n";
     } else if(type == SUCCESS) {
-        cout << ASCII_BOLD << ASCII_GREEN << "[SUCCESS]" << ASCII_RESET << " " << message << "\n";
+        cout << ASCII_BOLD << ASCII_GREEN << "[SUCCESS]" << ASCII_RESET << " " << /*(" << getCurrentDateTime() << ") " <<*/ message << "\n";
     }
 }
 
@@ -162,6 +183,7 @@ std::string durationToString(std::chrono::duration<double> duration) {
     return oss.str();
 }
 
+
 // Example of build.ninja.inf file:
 /*
 # Define executables (comment btw)
@@ -193,10 +215,10 @@ int compile() {
                 srcFilename = srcFilename.substr(0, srcFilename.length() - 1);
             }
 
-            log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + exeFilename);
+            log(INFO, "Compiling file src/" + srcFilename.erase(srcFilename.length() - 1) + " to executable target/" + exeFilename);
 
             // Start compiling
-            String command = "g++ \"src/" + srcFilename.erase(srcFilename.length() - 1) + "\" -o \"target/" + exeFilename + "\" " + argsC;
+            String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + exeFilename + "\" " + argsC;
             int re = system(command.c_str());
 
             if(re != 0) {
@@ -224,41 +246,125 @@ int compile() {
     std::chrono::duration<double> duration = end - start;
 
     if(!projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "------------------------------------------------------------------------");
-        log(SUCCESS, "Project " + projectName + ":" + projectVersion + " build completed in " + durationToString(duration) + "");
-        log(SUCCESS, "------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "Project " + projectName + ":" + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
     } else if(projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "------------------------------------------------------------------------");
-        log(SUCCESS, "Project version " + projectVersion + " build completed in " + durationToString(duration) + "");
-        log(SUCCESS, "------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "Project version " + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
     } else if(!projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "------------------------------------------------------------------------");
-        log(SUCCESS, "Project  " + projectName + " build completed in " + durationToString(duration) + "");
-        log(SUCCESS, "------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "Project  " + projectName + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
     } else if(projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "------------------------------------------------------------------------");
-        log(SUCCESS, "Build completed in " + durationToString(duration) + "");
-        log(SUCCESS, "------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "Build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
     }
     return 0;
 }
 
-int main(int argc, char** argv) {
-    if(argc != 1) {
-        String a(argv[1]);
-        if(a != "--no-ascii") {
-            updateColors();
+int test() {
+    log(INFO, "Started test for current directory.");
+    log(INFO, "Checking for build.ninja.inf file. . .");
+    if(!exists("build.ninja.inf")) {
+        log(ERROR, "build.ninja.inf file not found. Uneable to compile current path.");
+        return -1;
+    }
+    log(INFO, "Reading build.ninja.inf file. . .");
+    fstream f("build.ninja.inf");
+    String line;
+    String projectName, projectVersion;
+    while(getline(f, line)) {
+        if(line.substr(0,1) == "#") {
+            // Comment, ignore
+        } else if(line.substr(0,3) == "ex(") {
+            // Definition of an executable file.
+            String args = line.substr(3, line.length() - 2 /* Remove last ) */);
+            String srcFilename = splitOutsideQuotes(args)[1];
+            String argsC = "" ;
+            if(countCharsOutsideQuotes(args, ',') == 2) {
+                argsC = splitOutsideQuotes(args)[2];
+                srcFilename = srcFilename.substr(0, srcFilename.length() - 1);
+            }
+
+            log(INFO, "Testing file src/" + srcFilename.erase(srcFilename.length() - 1) + ".");
+
+            // Start compiling
+            String command = "g++ \"src/" + srcFilename + "\" " + argsC;
+            int re = system(command.c_str());
+
+            if(re != 0) {
+                log(ERROR, "File src/" + srcFilename + " gave an error.");
+            } else {
+                log(INFO, "File src/" + srcFilename + " was tested succesfully.");
+            }
+        } else if(line.substr(0,2) == "v.") {
+            // Definition of a variable
+            String variableName = line.substr(2, line.substr(2).find_first_of('('));
+            if(variableName == "projectName") {
+                projectName = line.substr(line.substr(2).find_first_of('(') + 3, line.substr(line.substr(2).find_first_of('(') + 3).find_last_of(')'));
+            } else if(variableName == "projectVersion") {
+                projectVersion = line.substr(line.substr(2).find_first_of('(') + 3, line.substr(line.substr(2).find_first_of('(') + 3).find_last_of(')'));
+            } else {
+                log(WARNING, "Variable type \"" + variableName + "\" is not on variable list, ignoring.");
+            }
         }
-    } else {
+    }
+
+    // End measuring time
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Calculate duration
+    std::chrono::duration<double> duration = end - start;
+
+    if(!projectName.empty() && !projectVersion.empty()) {
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "Project " + projectName + ":" + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+    } else if(projectName.empty() && !projectVersion.empty()) {
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "Project version " + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+    } else if(!projectName.empty() && projectVersion.empty()) {
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "Project  " + projectName + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+    } else if(projectName.empty() && projectVersion.empty()) {
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "Build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
+        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+    }
+    return 0;
+}
+
+bool isStrOnCharArr(const std::string& str, char** arr, int argc) {
+    for (int i = 0; i < argc; ++i) {
+        if (str == arr[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+int main(int argc, char** argv) {
+    bool noascii = false;
+    bool test2 = false;
+    bool version = false;
+
+    if(!isStrOnCharArr("--no-ascii", argv, argc)) {
         updateColors();
     }
-    if(argc != 1) {
-        String ver(argv[1]);
-        if(ver == "--version") {
-            log(MESSAGE, "eBuildNinja 2024.7.1 - eLite (c) 2024");
-            return 0;
-        }
+    if(isStrOnCharArr("--version", argv, argc)) {
+        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.2 - eLite (c) 2024" + ASCII_RESET);
+        return 0;
     }
+    if(isStrOnCharArr("test", argv, argc)) {
+        test2 = true;
+    }
+
     log(INFO, "Starting eBuildNinja. . .");
     log(INFO, "Checking if C++ is installed. . .");
     if(runCommandAndCaptureOutput("gcc --version") != 0) {
@@ -266,6 +372,10 @@ int main(int argc, char** argv) {
         return -1;
     }
     log(INFO, "As no argument was found, running as default current path.");
- 
+
+    if(test2) {
+        return test();
+    }
+    
     return compile();
 }
