@@ -30,5 +30,8 @@ Explanation:
 ## Where is eBuildNinja used?
 eBuildNinja is used on the IDE AliCode for compiling C++ and if you want, you can implement it on your C++ project.
 
+## What's comming?
+I'm thinking about adding more languages that eBuildNinja can compile like C, C# or other common languages.
+
 ## Wiki
 Here you have the link for going to our [wiki](https://github.com/eLiteEs/e--buildninja/wiki).
