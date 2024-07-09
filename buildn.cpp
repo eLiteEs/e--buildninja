@@ -215,7 +215,7 @@ int compile() {
                 srcFilename = srcFilename.substr(0, srcFilename.length() - 1);
             }
 
-            log(INFO, "Compiling file src/" + srcFilename.erase(srcFilename.length() - 1) + " to executable target/" + exeFilename);
+            log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + exeFilename);
 
             // Start compiling
             String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + exeFilename + "\" " + argsC;
@@ -246,21 +246,21 @@ int compile() {
     std::chrono::duration<double> duration = end - start;
 
     if(!projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
         log(SUCCESS, "Project " + projectName + ":" + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
     } else if(projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
         log(SUCCESS, "Project version " + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
     } else if(!projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
         log(SUCCESS, "Project  " + projectName + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
     } else if(projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
         log(SUCCESS, "Build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
     }
     return 0;
 }
@@ -320,21 +320,21 @@ int test() {
     std::chrono::duration<double> duration = end - start;
 
     if(!projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
         log(SUCCESS, "Project " + projectName + ":" + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
     } else if(projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
         log(SUCCESS, "Project version " + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
     } else if(!projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
         log(SUCCESS, "Project  " + projectName + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
     } else if(projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
         log(SUCCESS, "Build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------");
+        log(SUCCESS, "----------------------------------------------------");
     }
     return 0;
 }
