@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.7.2 - eLite (c) 2024
+    eBuildNinja 2024.7.3 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -320,21 +320,21 @@ int test() {
     std::chrono::duration<double> duration = end - start;
 
     if(!projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "---------------------------------------------------------------");
         log(SUCCESS, "Project " + projectName + ":" + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "---------------------------------------------------------------");
     } else if(projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "---------------------------------------------------------------");
         log(SUCCESS, "Project version " + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "---------------------------------------------------------------");
     } else if(!projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "---------------------------------------------------------------");
         log(SUCCESS, "Project  " + projectName + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "---------------------------------------------------------------");
     } else if(projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "---------------------------------------------------------------");
         log(SUCCESS, "Build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "----------------------------------------------------------------------------------------------------------------------");
+        log(SUCCESS, "---------------------------------------------------------------");
     }
     return 0;
 }
@@ -358,7 +358,7 @@ int main(int argc, char** argv) {
         updateColors();
     }
     if(isStrOnCharArr("--version", argv, argc)) {
-        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.2 - eLite (c) 2024" + ASCII_RESET);
+        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.3 - eLite (c) 2024" + ASCII_RESET);
         return 0;
     }
     if(isStrOnCharArr("test", argv, argc)) {
