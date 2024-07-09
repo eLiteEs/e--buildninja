@@ -320,21 +320,21 @@ int test() {
     std::chrono::duration<double> duration = end - start;
 
     if(!projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "---------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------");
         log(SUCCESS, "Project " + projectName + ":" + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "---------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------");
     } else if(projectName.empty() && !projectVersion.empty()) {
-        log(SUCCESS, "---------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------");
         log(SUCCESS, "Project version " + projectVersion + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "---------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------");
     } else if(!projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "---------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------");
         log(SUCCESS, "Project  " + projectName + " build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "---------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------");
     } else if(projectName.empty() && projectVersion.empty()) {
-        log(SUCCESS, "---------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------");
         log(SUCCESS, "Build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
-        log(SUCCESS, "---------------------------------------------------------------");
+        log(SUCCESS, "----------------------------------------");
     }
     return 0;
 }
