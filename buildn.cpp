@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.7.3 - eLite (c) 2024
+    eBuildNinja 2024.7.4 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -10,6 +10,7 @@
 #include <vector>
 #include <iomanip>
 #include <sstream>
+#include <conio.h>
 
 auto start = std::chrono::high_resolution_clock::now();
 
@@ -191,16 +192,18 @@ ex("main.exe" "main.cpp" "-static")
 ex("a.exe", "a.cpp")
 */
 
+String projectFileConfigName = "build.ninja.inf";
+
 int compile() {
-    log(INFO, "Checking for build.ninja.inf file. . .");
-    if(!exists("build.ninja.inf")) {
-        log(ERROR, "build.ninja.inf file not found. Uneable to compile current path.");
+    log(INFO, "Checking for " + projectFileConfigName + " file. . .");
+    if(!exists(projectFileConfigName)) {
+        log(ERROR, projectFileConfigName + " file not found. Uneable to compile current path.");
         return -1;
     }
-    log(INFO, "Reading build.ninja.inf file. . .");
-    fstream f("build.ninja.inf");
+    log(INFO, "Reading " + projectFileConfigName + " file. . .");
+    fstream f(projectFileConfigName);
     String line;
-    String projectName, projectVersion;
+    String projectName, projectVersion, outputPrefix = "", outputSuffix = "";
     while(getline(f, line)) {
         if(line.substr(0,1) == "#") {
             // Comment, ignore
@@ -210,21 +213,40 @@ int compile() {
             String exeFilename = splitOutsideQuotes(args)[0];
             String srcFilename = splitOutsideQuotes(args)[1];
             String argsC = "" ;
-            if(countCharsOutsideQuotes(args, ',') == 2) {
-                argsC = splitOutsideQuotes(args)[2];
+            if(countCharsOutsideQuotes(args, ' ') == 2) {
+                argsC = splitOutsideQuotes(args)[2].substr(0, splitOutsideQuotes(args)[2].length() - 1);
+            } else if(countCharsOutsideQuotes(args, ' ') == 1) {
                 srcFilename = srcFilename.substr(0, srcFilename.length() - 1);
             }
 
-            log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + exeFilename);
+            if(outputSuffix == "") {
+                log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + outputPrefix + exeFilename);
 
-            // Start compiling
-            String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + exeFilename + "\" " + argsC;
-            int re = system(command.c_str());
+                // Start compiling
+                String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeFilename +  "\" " + argsC;
+                int re = system(command.c_str());
+                
 
-            if(re != 0) {
-                log(ERROR, "File src/" + srcFilename + " gave an error.");
+                if(re != 0) {
+                    log(ERROR, "File src/" + srcFilename + " gave an error.");
+                } else {
+                    log(INFO, "File src/" + srcFilename + " was compiled succesfully.");
+                }
             } else {
-                log(INFO, "File src/" + srcFilename + " was compiled succesfully.");
+                String exeExt = exeFilename.substr(exeFilename.find_last_of(".") + 1);
+                String exeNam = exeFilename.substr(0, exeFilename.length() - exeExt.length() - 1);
+                log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + outputPrefix + exeNam + outputSuffix + "." + exeExt);
+
+                // Start compiling
+                String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeNam + outputSuffix + "." + exeExt +  "\" " + argsC;
+                int re = system(command.c_str());
+                
+
+                if(re != 0) {
+                    log(ERROR, "File src/" + srcFilename + " gave an error.");
+                } else {
+                    log(INFO, "File src/" + srcFilename + " was compiled succesfully.");
+                }
             }
         } else if(line.substr(0,2) == "v.") {
             // Definition of a variable
@@ -233,6 +255,10 @@ int compile() {
                 projectName = line.substr(line.substr(2).find_first_of('(') + 3, line.substr(line.substr(2).find_first_of('(') + 3).find_last_of(')'));
             } else if(variableName == "projectVersion") {
                 projectVersion = line.substr(line.substr(2).find_first_of('(') + 3, line.substr(line.substr(2).find_first_of('(') + 3).find_last_of(')'));
+            } else if(variableName == "outputPrefix") {
+                outputPrefix = line.substr(line.substr(2).find_first_of('(') + 3, line.substr(line.substr(2).find_first_of('(') + 3).find_last_of(')'));
+            } else if(variableName == "outputSuffix") {
+                outputSuffix = line.substr(line.substr(2).find_first_of('(') + 3, line.substr(line.substr(2).find_first_of('(') + 3).find_last_of(')'));
             } else {
                 log(WARNING, "Variable type \"" + variableName + "\" is not on variable list, ignoring.");
             }
@@ -267,13 +293,13 @@ int compile() {
 
 int test() {
     log(INFO, "Started test for current directory.");
-    log(INFO, "Checking for build.ninja.inf file. . .");
-    if(!exists("build.ninja.inf")) {
-        log(ERROR, "build.ninja.inf file not found. Uneable to compile current path.");
+    log(INFO, "Checking for " + projectFileConfigName + " file. . .");
+    if(!exists(projectFileConfigName)) {
+        log(ERROR, projectFileConfigName + " file not found. Uneable to compile current path.");
         return -1;
     }
-    log(INFO, "Reading build.ninja.inf file. . .");
-    fstream f("build.ninja.inf");
+    log(INFO, "Reading " + projectFileConfigName + " file. . .");
+    fstream f(projectFileConfigName);
     String line;
     String projectName, projectVersion;
     while(getline(f, line)) {
@@ -348,6 +374,15 @@ bool isStrOnCharArr(const std::string& str, char** arr, int argc) {
     return false;
 }
 
+int indexOfStrOnCharArr(const std::string& str, char** arr, int argc) {
+    for (int i = 0; i < argc; ++i) {
+        if (str == arr[i]) {
+            return i;
+        }
+    }
+    return 0;
+}
+
 
 int main(int argc, char** argv) {
     bool noascii = false;
@@ -358,7 +393,7 @@ int main(int argc, char** argv) {
         updateColors();
     }
     if(isStrOnCharArr("--version", argv, argc)) {
-        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.3 - eLite (c) 2024" + ASCII_RESET);
+        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.4 - eLite (c) 2024" + ASCII_RESET);
         return 0;
     }
     if(isStrOnCharArr("test", argv, argc)) {
@@ -369,6 +404,8 @@ int main(int argc, char** argv) {
     log(INFO, "Checking if C++ is installed. . .");
     if(runCommandAndCaptureOutput("gcc --version") != 0) {
         log(ERROR, "C++ should be installed and be added to PATH enviroment variables.");
+        log(INFO, "Do you want to install g++ now? (y=yes, else=no): ");
+        char opt = _getch();
         return -1;
     }
     log(INFO, "As no argument was found, running as default current path.");
