@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.7.4 - eLite (c) 2024
+    eBuildNinja 2024.7.5 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -192,6 +192,7 @@ ex("main.exe" "main.cpp" "-static")
 ex("a.exe", "a.cpp")
 */
 
+String compilerPath = "g++";
 String projectFileConfigName = "build.ninja.inf";
 
 int compile() {
@@ -223,7 +224,7 @@ int compile() {
                 log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + outputPrefix + exeFilename);
 
                 // Start compiling
-                String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeFilename +  "\" " + argsC;
+                String command = compilerPath + " \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeFilename +  "\" " + argsC;
                 int re = system(command.c_str());
                 
 
@@ -238,7 +239,7 @@ int compile() {
                 log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + outputPrefix + exeNam + outputSuffix + "." + exeExt);
 
                 // Start compiling
-                String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeNam + outputSuffix + "." + exeExt +  "\" " + argsC;
+                String command = compilerPath + " \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeNam + outputSuffix + "." + exeExt +  "\" " + argsC;
                 int re = system(command.c_str());
                 
 
@@ -318,7 +319,7 @@ int test() {
             log(INFO, "Testing file src/" + srcFilename.erase(srcFilename.length() - 1) + ".");
 
             // Start compiling
-            String command = "g++ \"src/" + srcFilename + "\" " + argsC;
+            String command = compilerPath + " \"src/" + srcFilename + "\" " + argsC;
             int re = system(command.c_str());
 
             if(re != 0) {
@@ -393,11 +394,23 @@ int main(int argc, char** argv) {
         updateColors();
     }
     if(isStrOnCharArr("--version", argv, argc)) {
-        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.4 - eLite (c) 2024" + ASCII_RESET);
+        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.5 - eLite (c) 2024" + ASCII_RESET);
         return 0;
     }
     if(isStrOnCharArr("test", argv, argc)) {
         test2 = true;
+    }
+    if(isStrOnCharArr("--cpp-path", argv, argc)) {
+        if(indexOfStrOnCharArr("--cpp-path", argv, argc) + 3 > argc) {
+            String s(argv[indexOfStrOnCharArr("--cpp-path", argv, argc) + 1]);
+            compilerPath = s;
+            if(!exists(compilerPath)) {
+                log(WARNING, "The selected compiler executable doesn't exist. Maybe you inserted a file on path or you didn't guessed the filename. This might make your compilation fail.");
+            }
+        } else {
+            log(ERROR, "Missing C++ path after --cpp-path argument, it should look like this: \"buildn --cpp-path C:\\msys64\\ucrt64\\bin\\g++.exe\"");
+            return 1;
+        }
     }
 
     log(INFO, "Starting eBuildNinja. . .");
