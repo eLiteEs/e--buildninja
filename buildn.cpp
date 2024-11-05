@@ -1,5 +1,5 @@
 /*
-    eBuildNinja 2024.7.5 - eLite (c) 2024
+    eBuildNinja 2024.7.4 - eLite (c) 2024
     Plz don't copy this code
 */
 #include <iostream>
@@ -192,10 +192,11 @@ ex("main.exe" "main.cpp" "-static")
 ex("a.exe", "a.cpp")
 */
 
-String compilerPath = "g++";
 String projectFileConfigName = "build.ninja.inf";
 
 int compile() {
+    int r = 0;
+
     log(INFO, "Checking for " + projectFileConfigName + " file. . .");
     if(!exists(projectFileConfigName)) {
         log(ERROR, projectFileConfigName + " file not found. Uneable to compile current path.");
@@ -224,7 +225,7 @@ int compile() {
                 log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + outputPrefix + exeFilename);
 
                 // Start compiling
-                String command = compilerPath + " \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeFilename +  "\" " + argsC;
+                String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeFilename +  "\" " + argsC;
                 int re = system(command.c_str());
                 
 
@@ -239,12 +240,13 @@ int compile() {
                 log(INFO, "Compiling file src/" + srcFilename + " to executable target/" + outputPrefix + exeNam + outputSuffix + "." + exeExt);
 
                 // Start compiling
-                String command = compilerPath + " \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeNam + outputSuffix + "." + exeExt +  "\" " + argsC;
+                String command = "g++ \"src/" + srcFilename + "\" -o \"target/" + outputPrefix + exeNam + outputSuffix + "." + exeExt +  "\" " + argsC;
                 int re = system(command.c_str());
                 
 
                 if(re != 0) {
                     log(ERROR, "File src/" + srcFilename + " gave an error.");
+                    r = -1;
                 } else {
                     log(INFO, "File src/" + srcFilename + " was compiled succesfully.");
                 }
@@ -289,10 +291,12 @@ int compile() {
         log(SUCCESS, "Build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
         log(SUCCESS, "----------------------------------------------------");
     }
-    return 0;
+    return r;
 }
 
 int test() {
+    int r = 0;
+
     log(INFO, "Started test for current directory.");
     log(INFO, "Checking for " + projectFileConfigName + " file. . .");
     if(!exists(projectFileConfigName)) {
@@ -319,11 +323,12 @@ int test() {
             log(INFO, "Testing file src/" + srcFilename.erase(srcFilename.length() - 1) + ".");
 
             // Start compiling
-            String command = compilerPath + " \"src/" + srcFilename + "\" " + argsC;
+            String command = "g++ \"src/" + srcFilename + "\" " + argsC;
             int re = system(command.c_str());
 
             if(re != 0) {
                 log(ERROR, "File src/" + srcFilename + " gave an error.");
+                r = -1;
             } else {
                 log(INFO, "File src/" + srcFilename + " was tested succesfully.");
             }
@@ -363,7 +368,7 @@ int test() {
         log(SUCCESS, "Build completed in " + durationToString(duration) + " at " + getCurrentDateTime());
         log(SUCCESS, "----------------------------------------------------");
     }
-    return 0;
+    return r;
 }
 
 bool isStrOnCharArr(const std::string& str, char** arr, int argc) {
@@ -394,23 +399,11 @@ int main(int argc, char** argv) {
         updateColors();
     }
     if(isStrOnCharArr("--version", argv, argc)) {
-        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.5 - eLite (c) 2024" + ASCII_RESET);
+        log(MESSAGE, ASCII_BOLD + "eBuildNinja 2024.7.4 - eLite (c) 2024" + ASCII_RESET);
         return 0;
     }
     if(isStrOnCharArr("test", argv, argc)) {
         test2 = true;
-    }
-    if(isStrOnCharArr("--cpp-path", argv, argc)) {
-        if(indexOfStrOnCharArr("--cpp-path", argv, argc) + 3 > argc) {
-            String s(argv[indexOfStrOnCharArr("--cpp-path", argv, argc) + 1]);
-            compilerPath = s;
-            if(!exists(compilerPath)) {
-                log(WARNING, "The selected compiler executable doesn't exist. Maybe you inserted a file on path or you didn't guessed the filename. This might make your compilation fail.");
-            }
-        } else {
-            log(ERROR, "Missing C++ path after --cpp-path argument, it should look like this: \"buildn --cpp-path C:\\msys64\\ucrt64\\bin\\g++.exe\"");
-            return 1;
-        }
     }
 
     log(INFO, "Starting eBuildNinja. . .");
